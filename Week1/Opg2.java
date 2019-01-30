@@ -32,15 +32,14 @@ public class Opg2 {
   }
 
   void findMax(){
-    try {
-      b.await();
 
-    }catch(Exception e){return;}
+
     int max = 0;
     for ( int i :  t_max ){
       if( i > max) {max = i;}
     }
     System.out.println("Max found: " + max);
+
   }
 
 
