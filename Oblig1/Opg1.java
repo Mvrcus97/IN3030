@@ -2,48 +2,90 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
-
 public class Opg1{
   int[] array;
   int seed = 1337;
   Random random = new Random(seed);
-  int k = 10;
+  int k;
 
   public static void main(String[] arguments){
-    if(arguments.length != 1) {
-      System.out.println("Usage: java Opg1 'amount'");
+    if(arguments.length != 2) {
+      System.out.println("Usage: java Opg1 'array-size' 'k-value'");
       return;
     }
+    System.out.println("Do you want to use Java's Arrays.sort() or my algorithm?");
+    System.out.println("y -- Java");
+    System.out.println("n -- My own");
+    Scanner s = new Scanner(System.in);
+    String input = s.nextLine();
+    boolean java;
+
+    if(input.equals("y")){
+      java = true;
+    }else if ( input.equals("n")){
+      java = false;
+    }else{
+      System.out.println("Error. exiting..");
+      return;
+    }
+    System.out.println("Running algorithm.. [Java = "+java+"]");
+
     int length = Integer.parseInt(arguments[0]);
-    Opg1 opg1 = new Opg1(length);
-    //opg1.printArray();
-    opg1.seqSort(5);
-    //opg1.printArray();
-    opg1.sortReplace();
-    //opg1.printArray();
-    opg1.printTopX(10);
-  }
+    int k = Integer.parseInt(arguments[1]);
+    Opg1 opg1 = new Opg1(length, k);
+
+    double[] timeArray = new double[7];
+    double start, stop;
+    for( int i = 0; i <7; i++){
+      start = System.nanoTime();
+      opg1.execute(java);
+      stop  = System.nanoTime();
+      timeArray[i] = (stop-start)/1000000;
+
+      opg1 = new Opg1(length, k); // Important to reset the sorted aray.
+    }
+
+    System.out.println("Times recorded:");
+    for( double d : timeArray){
+      System.out.println(d + "ms");
+    }
+
+  }// end Main.
 
   /* Constructor */
-  public Opg1(int n){
+  public Opg1(int n, int k){
+    this.k = k;
     this.array = new int[n];
     //Initialize array with n numbers.
     for( int i = 0; i<n;i++){
-      array[i] = random.nextInt(1000000);
+      array[i] = random.nextInt(n*10);
     }
+  }
+
+  /*
+  This method executes the entire algorithm.
+  */
+  public void execute(boolean java){
+    if(java){
+      executeJavaSort();
+      return;
+    }
+    seqSort();
+    sortReplace();
+    //printTopX(20);
+  }
+
+  public void executeJavaSort(){
+    Arrays.sort(array);
+
   }
 
   /* This method implemens the sequential
   *  Sorting algorithm.
   */
-  public void seqSort(int k){
+  public void seqSort(){
     //sort the k- first elements.
-    insertSortDec(0, k);
-
-
-
-
-
+    insertSortDec(0, this.k);
   }
 
   /*
@@ -94,7 +136,7 @@ public void insertSortDec(int a, int b){
 
     for (int i = k+1; i<array.length; i++){
       if ( array[i] > array[k]){
-        System.out.println("Swapping: " + array[i] + " and " + array[k]);
+        //System.out.println("Swapping: " + array[i] + " and " + array[k]);
         swap(i,k);
         sortNewValue();
       }
@@ -106,7 +148,6 @@ public void insertSortDec(int a, int b){
   This method puts the new a[k]-value
   into correct position.
   */
-  //TODO check if this works. lul.
   public void sortNewValue(){
     for ( int i = k; i>0; i--){
         if (array[i] > array[i-1]) swap(i, i-1);
