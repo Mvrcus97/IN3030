@@ -50,6 +50,8 @@ public class Opg1{
       System.out.println(d + "ms");
     }
 
+    System.out.println("Median is: " + opg1.median(timeArray));
+
   }// end Main.
 
   /* Constructor */
@@ -175,6 +177,31 @@ public void insertSortDec(int a, int b){
     for( int i = 0; i <x; i++) {
       System.out.println(array[i]);
     }
+  }
+
+
+  /*Cheeky function of getting median of UNSORTED* list
+  of ODD or EVEN* amount of elements. */
+  double median(double[] a){
+    int length = a.length;
+    double temp;
+    boolean odd = false;
+    if (length%2 != 0){
+      odd = true;
+    }
+
+    //sort array
+    for( int i = 0; i < length; i++){
+      for (int j = i+1; j < length; j++){
+        if (a[j] < a[i]) {
+          temp = a[i];
+          a[i] = a[j];
+          a[j] = temp;
+        }
+      }
+    }
+    double median = odd? a[(length/2)] : (a[length/2] + a[(length/2)+1])/2;
+    return median;
   }
 
 
