@@ -54,10 +54,24 @@ public class Sorter{
       workers[i].start();
     }
 
-    //Finally await for all threads to finish.
+    //Await for all threads to do their job..
     try{
       barrier.await();
     }catch(Exception e){return;}
+    // and finally, compare what the threads found and store the largest.
+    System.out.println("all threads done");
+    int compared = 0;
+    while(compared < cores-2){
+    for( int i = part; i<part+k; i++){
+      if(array[i] > array[k]){
+        swap(i,k);
+        sortNewValue();
+      }
+    }//end for i
+    compared ++;
+    part += part;
+  }// end while
+
 
 
 
@@ -191,7 +205,6 @@ public void insertSortDec(int a, int b){
   The Thread-class which wil run in paralell
   */
   class Worker implements Runnable{
-    int[] topFindings;
     int id, start, stop;
 
     public Worker(int id, int start, int stop){
@@ -199,24 +212,32 @@ public void insertSortDec(int a, int b){
       this.start = start;
       this.stop = stop;
     }
+    /* Same as sortNewValue() only for internal array.
+    This method sorts respective INDEX. example: array[inner_k[0]] = largest found.  */
+    public void sortNewInnerValue(){
+      for ( int i = start+k; i>start; i--){
+          if (array[i] > array[i-1]) swap(i, i-1);
+      }//end for i
+    }// end sortNewInnerValue
+
+    public void printInner(){
+      for( int i = start; i<=start+k;i++){
+        System.out.println(array[i] + " " + this.id);
+      }
+    }
 
 
-  //Each Thread do:
-  public void run(){
-    int temp;
-    for( int i = start; i<stop; i++){
-      if(array[i] > array[k]){
-        /*Found a big value, report back.
-        But we only want to allow one Thread to
-        Manipulate array[k] at the same time.  */
-        lock.lock();
-        try{
+
+    //Each Thread do:
+    public void run(){
+      insertSortDec(start,start+k); //Sort the top of this Threads part.
+      int temp;
+
+      for( int i = start+k; i<stop; i++){
+        if(array[i] > array[start+k]){
+          /*Found a big value, move it in place. */
           swap(i, k);
-          sortNewValue();
-
-        }finally{
-          lock.unlock();
-          }
+          sortNewInnerValue();
         }
       }//end for i
 
@@ -224,8 +245,7 @@ public void insertSortDec(int a, int b){
       try{barrier.await();
       }catch(Exception e){return;}
 
+      printInner();
     }// end run
-
   }// end Worker
-
 } // end Sorter
