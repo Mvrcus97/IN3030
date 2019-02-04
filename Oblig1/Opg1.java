@@ -8,9 +8,9 @@ public class Opg1{
       System.out.println("Usage: java Opg1 'array-size' 'k-value'");
       return;
     }
-    System.out.println("Do you want to use Java's Arrays.sort() or my algorithm?");
+    System.out.println("Do you want to use Java's Arrays.sort() or the custom algorithm?");
     System.out.println("y -- Java");
-    System.out.println("n -- My own");
+    System.out.println("n -- Custom");
     Scanner s = new Scanner(System.in);
     String input = s.nextLine();
     boolean java;
@@ -40,12 +40,16 @@ public class Opg1{
       opg1 = new Sorter(length, k); // Important to reset the sorted aray.
     }
 
+
     System.out.println("Times recorded:");
     for( double d : timeArray){
       System.out.println(d + "ms");
     }
 
     System.out.println("Median is: " + opg1.median(timeArray));
+
+    opg1.execute(false);
+    opg1.printTopX(20);
 
   }// end Main.
 }// end Opg1

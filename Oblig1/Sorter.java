@@ -50,7 +50,7 @@ public class Sorter{
       start = end;
       end = start + part;
 
-      workers[i] = new Thread(new Worker(i,start,end));
+      workers[i] = new Thread(new Worker(i,start,end-1));
       workers[i].start();
     }
 
@@ -59,25 +59,20 @@ public class Sorter{
       barrier.await();
     }catch(Exception e){return;}
     // and finally, compare what the threads found and store the largest.
-    System.out.println("all threads done");
     int compared = 0;
-    while(compared < cores-2){
-    for( int i = part; i<part+k; i++){
-      if(array[i] > array[k]){
-        swap(i,k);
-        sortNewValue();
+    double t1, t2;
+
+    for ( int i = 1; i<cores; i++){
+      for( int j = i*part; j<(i*part+k); j++){
+        if( array[j] > array[k-1]){
+          swap(j,k-1);
+          sortNewValue();
+        }
       }
-    }//end for i
-    compared ++;
-    part += part;
-  }// end while
-
-
-
-
-
+    }
 
   }//end executeParalell
+
 
   /* This method implemens the sequential
   *  Sorting algorithm.
@@ -230,13 +225,13 @@ public void insertSortDec(int a, int b){
 
     //Each Thread do:
     public void run(){
-      insertSortDec(start,start+k); //Sort the top of this Threads part.
+      insertSortDec(start,start+k-1); //Sort the top of this Threads part.
       int temp;
 
-      for( int i = start+k; i<stop; i++){
-        if(array[i] > array[start+k]){
+      for( int i = start+k; i<=stop; i++){
+        if(array[i] > array[start+k-1]){
           /*Found a big value, move it in place. */
-          swap(i, k);
+          swap(i, start+k-1);
           sortNewInnerValue();
         }
       }//end for i
@@ -244,8 +239,8 @@ public void insertSortDec(int a, int b){
       //Finally, let everyone know this thread is done.
       try{barrier.await();
       }catch(Exception e){return;}
+      //printInner();
 
-      printInner();
     }// end run
   }// end Worker
 } // end Sorter
