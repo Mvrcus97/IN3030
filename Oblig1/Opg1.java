@@ -31,23 +31,20 @@ public class Opg1{
 
     double[] timeArray = new double[7];
     double start, stop;
+    System.out.println("Times recorded:");
     for( int i = 0; i <7; i++){
       start = System.nanoTime();
       opg1.execute(java);
       stop  = System.nanoTime();
+      System.out.println((stop-start)/1000000 + "ms");
       timeArray[i] = (stop-start)/1000000;
 
       opg1 = new Sorter(length, k); // Important to reset the sorted aray.
     }
 
 
-    System.out.println("Times recorded:");
-    for( double d : timeArray){
-      System.out.println(d + "ms");
-    }
-
-    System.out.println("Median is: " + opg1.median(timeArray));
-
+    System.out.println("Median is: " + opg1.median(timeArray) + "ms");
+    System.out.println("\nTop 20 findings: ");
     opg1.execute(false);
     opg1.printTopX(20);
 

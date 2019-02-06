@@ -227,7 +227,7 @@ public void insertSortDec(int a, int b){
     public void run(){
       insertSortDec(start,start+k-1); //Sort the top of this Threads part.
       int temp;
-
+      
       for( int i = start+k; i<=stop; i++){
         if(array[i] > array[start+k-1]){
           /*Found a big value, move it in place. */
