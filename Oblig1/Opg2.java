@@ -33,8 +33,7 @@ public class Opg2{
     opg2.executeParalell();
     System.out.println("\nTop 20 findings:");
     opg2.printTopX(20);
-
-
+    
 
   }// end Main
 }// end Opg2
