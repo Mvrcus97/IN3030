@@ -7,7 +7,6 @@ public class Sorter{
   int[] array;
   int seed = 1337, k, cores;
   Random random = new Random(seed);
-  ReentrantLock lock = new ReentrantLock();
   Thread[] workers;
   CyclicBarrier barrier;
 
@@ -41,7 +40,7 @@ public class Sorter{
 
   /* This function begins CORES* amount of Threads and lets
   them sort the array. */
-  public void executeParalell(){
+  public void executeParallel(){
     this.workers = new Thread[cores];
     this.barrier = new CyclicBarrier(cores+1);
     int start = 0, end = 0, part = array.length/cores;
@@ -170,6 +169,23 @@ public void insertSortDec(int a, int b){
     }
   }
 
+  //Check if top k- elements are equal to the top k- elements of java sort.
+  public void checkMatch(){
+    System.out.println("Checking if sort is done correctly...");
+    int[] tester = array.clone();
+    Arrays.sort(tester);
+    int length = tester.length - 1;
+
+    for ( int i = 0; i < k; i++){
+      if ( array[i] != tester[length-i]){
+        System.out.println("Error. matrices do not match.");
+        return;
+      }
+    }
+    System.out.println("Sort successfull!");
+  }
+
+
 
   /*Cheeky function of getting median of UNSORTED* list
   of ODD or EVEN* amount of elements. */
@@ -221,7 +237,7 @@ public void insertSortDec(int a, int b){
       }
     }
 
-    
+
     //Each Thread do:
     public void run(){
       insertSortDec(start,start+k-1); //Sort the top of this Threads part.

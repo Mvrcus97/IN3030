@@ -20,7 +20,7 @@ public class Opg2{
 
     for( int i = 0; i <7; i++) {
       start = System.nanoTime();
-      opg2.executeParalell();
+      opg2.executeParallel();
       stop = System.nanoTime();
       timeArray[i] = (stop-start)/1000000.0;
       System.out.println((stop-start)/1000000.0 + "ms");
@@ -30,10 +30,10 @@ public class Opg2{
 
 
     System.out.println("\nMedian is: " + opg2.median(timeArray) + "ms");
-    opg2.executeParalell();
+    opg2.executeParallel();
     System.out.println("\nTop 20 findings:");
     opg2.printTopX(20);
-    
+
 
   }// end Main
 }// end Opg2

@@ -41,7 +41,7 @@ public class Opg1{
 
       opg1 = new Sorter(length, k); // Important to reset the sorted aray.
     }
-    
+
     System.out.println("Median is: " + opg1.median(timeArray) + "ms");
     System.out.println("\nTop 20 findings: ");
     opg1.execute(false);
