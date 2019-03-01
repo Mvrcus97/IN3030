@@ -1,35 +1,175 @@
 public class Oblig2 {
   public static void main(String[] args){
 
-  Oblig2Precode matrixMaker = new Oblig2Precode();
-  double[][] a = matrixMaker.generateMatrixA(1337, 1000);
-  double[][] b = matrixMaker.generateMatrixB(1337, 1000);
-
-  //double[][] a = {{1,2,3},{4,5,6},{7,8,9}};
-  //double[][] b = {{7,8,9},{4,5,6}, {1,2,3}};
-  MatrixMultiplier multiplier = new MatrixMultiplier(a,b);
-  MatrixMultiplier multiplier2 = new MatrixMultiplier(a,b);
-  System.out.println("Sequential1...");
-  multiplier.multiply();
-  //System.out.println("Parallel...");
-  //multiplier2.multiplyPara();
-  System.out.println("transposeA...");
-  multiplier2.transposeA();
-  System.out.println("...");
-  multiplier2.multiplyPara();
-  double[][] c = multiplier.getC();
-  double[][] c2 = multiplier2.getC();
-
-  multiplier.checkMatch2D(c2);
+    if(args.length != 1) {
+      System.out.println("Usage: java Oblig2 'Seed'\n");
+      System.out.println("The program will automatically record\ntimings of matrix multiplication of the\nfollowing matrix sizes:");
+      System.out.println("100x100,  200x200,  500x500 and 1000x1000.");
+      return;
+    }
+    Oblig2Precode matrixMaker = new Oblig2Precode();
+    int seed = Integer.parseInt(args[0]);
 
 
+    double[][] a = matrixMaker.generateMatrixA(seed, 1000);
+    double[][] b = matrixMaker.generateMatrixB(seed, 1000);
+    double[][] c;
+    MatrixMultiplier correcter = new MatrixMultiplier(a,b);
+    MatrixMultiplier multiplier = new MatrixMultiplier(a,b);
+
+    //Run Sequential Multiplication.
+    double[] seqTime = new double[7];
+    double start = 0 , stop = 0;
+    System.out.println("Running Sequential Multiplication...");
+
+    for( int i = 0; i <7; i++) {
+      start = System.nanoTime();
+      correcter.multiply();
+      stop = System.nanoTime();
+      seqTime[i] = (stop-start)/1000000.0;
+      System.out.println((stop-start)/1000000.0 + "ms");
+      if ( i != 6) {correcter = new MatrixMultiplier(a,b);} // Reset correcter.
+    }
+    System.out.println("Median time of Sequential Multiplication is: " + multiplier.median(seqTime) + "ms\n");
 
 
 
 
-  matrixMaker.saveResult(1337, Oblig2Precode.Mode.SEQ_NOT_TRANSPOSED, a);
-  matrixMaker.saveResult(1338, Oblig2Precode.Mode.SEQ_NOT_TRANSPOSED, b);
-  matrixMaker.saveResult(1233, Oblig2Precode.Mode.SEQ_NOT_TRANSPOSED, c);
-  matrixMaker.saveResult(1234, Oblig2Precode.Mode.SEQ_NOT_TRANSPOSED, c2);
+
+
+
+    //Run Parallel Multiplication.
+    double[] paraTime = new double[7];
+    start = 0;
+    stop  = 0;
+    System.out.println("Running Parallel Multiplication...");
+
+    for( int i = 0; i <7; i++) {
+      start = System.nanoTime();
+      multiplier.multiplyPara();
+      stop = System.nanoTime();
+      paraTime[i] = (stop-start)/1000000.0;
+      System.out.println((stop-start)/1000000.0 + "ms");
+      if ( i != 6) {multiplier = new MatrixMultiplier(a,b);} // Reset multiplier.
+    }
+    c = multiplier.getC();
+    correcter.checkMatch2D(c);
+    System.out.println("Median time of Parallel Multiplication is: " + multiplier.median(paraTime) + "ms\n");
+
+
+
+
+
+
+
+    //Run Sequential Multiplication, b transposed.
+    multiplier = new MatrixMultiplier(a,b);
+    seqTime = new double[7];
+    start = 0;
+    stop  = 0;
+    System.out.println("Running Sequential Multiplication with b Transposed...");
+
+    for( int i = 0; i <7; i++) {
+      start = System.nanoTime();
+      multiplier.transposeB();
+      multiplier.multiply();
+      stop = System.nanoTime();
+      seqTime[i] = (stop-start)/1000000.0;
+      System.out.println((stop-start)/1000000.0 + "ms");
+      if ( i != 6) {multiplier = new MatrixMultiplier(a,b);} // Reset multiplier.
+    }
+    c = multiplier.getC();
+    correcter.checkMatch2D(c);
+    System.out.println("Median time of Sequential Multiplication with b Transposed is: " + multiplier.median(seqTime) + "ms\n");
+
+
+
+
+
+
+
+    //Run Parallel Multiplication, b transposed.
+    multiplier = new MatrixMultiplier(a,b);
+    paraTime = new double[7];
+    start = 0;
+    stop  = 0;
+    System.out.println("Running Parallel Multiplication with b Transposed...");
+
+    for( int i = 0; i <7; i++) {
+      start = System.nanoTime();
+      multiplier.transposeB();
+      multiplier.multiplyPara();
+      stop = System.nanoTime();
+      paraTime[i] = (stop-start)/1000000.0;
+      System.out.println((stop-start)/1000000.0 + "ms");
+      if ( i != 6) {multiplier = new MatrixMultiplier(a,b);} // Reset multiplier.
+    }
+    c = multiplier.getC();
+    correcter.checkMatch2D(c);
+    System.out.println("Median time of Parallel Multiplication with b Transposed is: " + multiplier.median(paraTime) + "ms\n");
+
+
+
+
+
+
+
+
+    //Run Sequential Multiplication, a transposed.
+    multiplier = new MatrixMultiplier(a,b);
+    seqTime = new double[7];
+    start = 0;
+    stop  = 0;
+    System.out.println("Running Sequential Multiplication with a Transposed...");
+
+    for( int i = 0; i <7; i++) {
+      start = System.nanoTime();
+      multiplier.transposeA();
+      multiplier.multiply();
+      stop = System.nanoTime();
+      seqTime[i] = (stop-start)/1000000.0;
+      System.out.println((stop-start)/1000000.0 + "ms");
+      if ( i != 6) {multiplier = new MatrixMultiplier(a,b);} // Reset multiplier.
+    }
+    c = multiplier.getC();
+    correcter.checkMatch2D(c);
+    System.out.println("Median time of Sequential Multiplication with a Transposed is: " + multiplier.median(seqTime) + "ms\n");
+
+
+
+
+
+
+
+
+    //Run Parallel Multiplication, a transposed.
+    multiplier = new MatrixMultiplier(a,b);
+    paraTime = new double[7];
+    start = 0;
+    stop  = 0;
+    System.out.println("Running Parallel Multiplication with a Transposed...");
+
+    for( int i = 0; i <7; i++) {
+      start = System.nanoTime();
+      multiplier.transposeA();
+      multiplier.multiplyPara();
+      stop = System.nanoTime();
+      paraTime[i] = (stop-start)/1000000.0;
+      System.out.println((stop-start)/1000000.0 + "ms");
+      if ( i != 6) {multiplier = new MatrixMultiplier(a,b);} // Reset multiplier.
+    }
+    c = multiplier.getC();
+    correcter.checkMatch2D(c);
+    System.out.println("Median time of Parallel Multiplication with a Transposed is: " + multiplier.median(paraTime) + "ms\n");
+
+
+
+
+
+
+
+
+
+
   }
 }

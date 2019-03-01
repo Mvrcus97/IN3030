@@ -140,7 +140,7 @@ public class MatrixMultiplier {
         //TEMPORARY: Force last thread to do all "rest" rows of work..
         //TODO
         int rest = a.length - (rowEnd-1);
-        System.out.println("THERE IS A REST OF " + rest + " ROWS !!\nForcing last thread to deal with it..");
+        //System.out.println("THERE IS A REST OF " + rest + " ROWS !!\nForcing last thread to deal with it..");
         rowEnd = a.length;
       }
       workers[i] = new Thread(new Worker(i, rowStart, rowEnd-1, a.length));
@@ -152,7 +152,6 @@ public class MatrixMultiplier {
       barrier.await();
     }catch(Exception e){return;}
     // The workers has now calculated the c -matrix.
-    System.out.println("Workers done. ");
   }//end multiplyPara
 
 
@@ -171,10 +170,38 @@ public class MatrixMultiplier {
     if(!error) System.out.println("------------------------\nMatrix Multiplication Successfull.");
   }//end checkMatch2D
 
+
+
+  /*Cheeky function of getting median of UNSORTED* list
+  of ODD or EVEN* amount of elements. */
+  double median(double[] a){
+    int length = a.length;
+    double temp;
+    boolean odd = false;
+    if (length%2 != 0){
+      odd = true;
+    }
+
+    //sort array
+    for( int i = 0; i < length; i++){
+      for (int j = i+1; j < length; j++){
+        if (a[j] < a[i]) {
+          temp = a[i];
+          a[i] = a[j];
+          a[j] = temp;
+        }
+      }
+    }
+    double median = odd? a[(length/2)] : (a[length/2] + a[(length/2)+1])/2;
+    return median;
+  }// end Median
+
   //Getters. Don't really need any setters here.
   public double[][] getA(){return this.a;}
   public double[][] getB(){return this.b;}
   public double[][] getC(){return this.c;}
+
+
 
   /*The Thread-class which wil run in parallel*/
   class Worker implements Runnable{
@@ -262,7 +289,6 @@ public class MatrixMultiplier {
       try{barrier.await();
       }catch(Exception e){return;}
     }// end run
+
   }// end Worker
-
-
 }// End MatrixMultiplier
