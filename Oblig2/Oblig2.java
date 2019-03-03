@@ -1,18 +1,18 @@
 public class Oblig2 {
   public static void main(String[] args){
 
-    if(args.length != 1) {
-      System.out.println("Usage: java Oblig2 'Seed'\n");
-      System.out.println("The program will automatically record\ntimings of matrix multiplication of the\nfollowing matrix sizes:");
-      System.out.println("100x100,  200x200,  500x500 and 1000x1000.");
+    if(args.length != 2) {
+      System.out.println("Usage: java Oblig2 'Seed' 'Size'\n");
+      System.out.println("The program will automatically record\ntimings of matrix multiplication of the\ngiven matrix dimension.");
       return;
     }
     Oblig2Precode matrixMaker = new Oblig2Precode();
     int seed = Integer.parseInt(args[0]);
+    int size = Integer.parseInt(args[1]);
 
 
-    double[][] a = matrixMaker.generateMatrixA(seed, 1000);
-    double[][] b = matrixMaker.generateMatrixB(seed, 1000);
+    double[][] a = matrixMaker.generateMatrixA(seed, size);
+    double[][] b = matrixMaker.generateMatrixB(seed, size);
     double[][] c;
     MatrixMultiplier correcter = new MatrixMultiplier(a,b);
     MatrixMultiplier multiplier = new MatrixMultiplier(a,b);
