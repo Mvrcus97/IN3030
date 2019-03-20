@@ -31,6 +31,7 @@ public class Oblig2 {
       if ( i != 6) {correcter = new MatrixMultiplier(a,b);} // Reset correcter.
     }
     System.out.println("Median time of Sequential Multiplication is: " + multiplier.median(seqTime) + "ms\n");
+    Oblig2Precode.saveResult(seed, Oblig2Precode.Mode.SEQ_NOT_TRANSPOSED, correcter.getC());
 
 
 
@@ -55,6 +56,7 @@ public class Oblig2 {
     c = multiplier.getC();
     correcter.checkMatch2D(c);
     System.out.println("Median time of Parallel Multiplication is: " + multiplier.median(paraTime) + "ms\n");
+    Oblig2Precode.saveResult(seed, Oblig2Precode.Mode.PARA_NOT_TRANSPOSED, c);
 
 
 
@@ -81,6 +83,7 @@ public class Oblig2 {
     c = multiplier.getC();
     correcter.checkMatch2D(c);
     System.out.println("Median time of Sequential Multiplication with b Transposed is: " + multiplier.median(seqTime) + "ms\n");
+    Oblig2Precode.saveResult(seed, Oblig2Precode.Mode.SEQ_B_TRANSPOSED, c);
 
 
 
@@ -107,6 +110,7 @@ public class Oblig2 {
     c = multiplier.getC();
     correcter.checkMatch2D(c);
     System.out.println("Median time of Parallel Multiplication with b Transposed is: " + multiplier.median(paraTime) + "ms\n");
+    Oblig2Precode.saveResult(seed, Oblig2Precode.Mode.PARA_B_TRANSPOSED, c);
 
 
 
@@ -134,6 +138,7 @@ public class Oblig2 {
     c = multiplier.getC();
     correcter.checkMatch2D(c);
     System.out.println("Median time of Sequential Multiplication with a Transposed is: " + multiplier.median(seqTime) + "ms\n");
+    Oblig2Precode.saveResult(seed, Oblig2Precode.Mode.SEQ_A_TRANSPOSED, c);
 
 
 
@@ -161,6 +166,7 @@ public class Oblig2 {
     c = multiplier.getC();
     correcter.checkMatch2D(c);
     System.out.println("Median time of Parallel Multiplication with a Transposed is: " + multiplier.median(paraTime) + "ms\n");
+    Oblig2Precode.saveResult(seed, Oblig2Precode.Mode.PARA_A_TRANSPOSED, c);
 
 
 
