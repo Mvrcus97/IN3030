@@ -51,12 +51,13 @@ public class Oblig3 {
 	para.factorizeSeq();
 	stop = (System.nanoTime() - start )/1000000.0;
 	System.out.println("Sequential:" + stop + "ms");
-/*
+
+
 	start = System.nanoTime();
 	para.factorizePara();
 	stop = (System.nanoTime() - start )/1000000.0;
 
 	System.out.println("Parallel: "  + stop + "ms");
-	*/
+
 	}
 }

@@ -3,7 +3,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 public class SievePara{
-  int n,nn, cores;
+  int n, cores;
+  long nn;
   int[] primes;
   int currentPrimeIndex = 0;
   byte[] sieve;
@@ -15,12 +16,14 @@ public class SievePara{
   int currentFactor;
   Monitor monitor;
 
+  int thread_no_factor = 0;
+
 
 
   public SievePara(int n, int k){
     this.n = n;
     this.nn = n*n;
-    this.sieve = new byte[nn / 16 + 1];
+    this.sieve = new byte[n / 16 + 1];
     this.cores = ((k==0) ? Runtime.getRuntime().availableProcessors(): k);
     this.workers = new Thread[cores];
     this.fWorkers = new Thread[cores];
@@ -146,6 +149,7 @@ public class SievePara{
 
 
   private int getNextPrime(int searchFrom, int searchTo) {
+    if(searchFrom == 1){return 2;}
     if(searchFrom % 2 == 0){
       System.out.printf("ERROR Searching with a even number %d\n", searchFrom);
       searchFrom ++;
@@ -183,6 +187,7 @@ public class SievePara{
   }
 
   private boolean isPrime(int number) {
+    if(number == 2)return true; //hardcode 2.
     int cell = number / 16;
     int bit = (number / 2) % 8;
     // See the previous method
@@ -289,56 +294,44 @@ public class SievePara{
 
     //We need to expand these because we now need to find all primes up to N*N instead of just N.
     public void expandPrimes(){
-      long size1,size2;
-      size1 = sieve.length*n;
-      size2 = primes.length*n;
-
-      byte[] sieve2 = new byte[(int) size1];
-      int[] primes2 = new int[(int) size2];
-
+      long size = nn/16 +1;
+      byte[] sieve2 = new byte[(int) size];
       System.arraycopy( sieve, 0, sieve2, 0, sieve.length );
-      System.arraycopy( primes, 0, primes2, 0, primes.length );
-
       this.sieve = sieve2;
-      this.primes = primes2;
     }
 
 
   public void factorizeSeq(){
-    //We only have primes upto N. need to crossout up to N*N.
-    double start, stop;
-    start = System.nanoTime();
-    expandPrimes();
-    traverse((primes[currentPrimeIndex-1]+2), nn);
-    stop = (System.nanoTime() -start)/1000000.0;
-    System.out.println("Time doing shit seq :  " + stop);
-
     this.precode = new Oblig3Precode(n);
-    for(int i = nn-1; i >= nn-100; i--){
+
+    for(long i = nn-1; i >= nn-100; i--){
       getFactors(i);
     }
     precode.writeFactors();
   }
 
-  public void getFactors(int num){
-    int currNum = num;
-    for(int i =0; i < currentPrimeIndex; i++){
-      //System.out.println("i: " + i + ", primes[i]: " + primes[i]);
-      if( (currNum % primes[i]) == 0){
+  public void getFactors(long num){
+    long currNum = num;
+
+    for(int i = 0; i <currentPrimeIndex; i++){
+      //System.out.println("i: " + i + ", currPrime: " + currPrime + "currNum: " + currNum);
+      if( currNum % primes[i] == 0){
         precode.addFactor(num, primes[i]);
         currNum = currNum/primes[i];
-        i = -1; // to get primes[0] next iteration
+        i = -1; // to get first prime again next iteration
       }
-    }
-  }
+
+      if( (i == currentPrimeIndex-1) && (currNum != 1) ){
+        //No factor found. That means we must have encountered a prime.
+        //System.out.println("Found a new prime: " + currNum);
+        precode.addFactor(num, currNum);
+      }
+    }//end for
+  }// end getFactors
 
   public void factorizePara(){
-    //We only have primes upto N. need to crossout u to N*N
-    expandPrimes();
-    createThreads((currentPrimeIndex-1)+2, nn);
-    int nn = n*n;
     int amount_to_factorize = 100;
-    monitor = new Monitor(amount_to_factorize, nn);
+    monitor = new Monitor(amount_to_factorize, n, cores);
 
     //Round Robin / Card Dealer . This is to deal with the load imbalance of the earlier primes being used more frequently.
     int[][] threadWork = new int[cores][((currentPrimeIndex-1)/cores)+1]; // 2D array , [k][j] -> thread k append prime j.
@@ -346,7 +339,7 @@ public class SievePara{
     int i = 0;
 
     while(i < currentPrimeIndex){
-      for(int j = 0; j<workers.length; j++){
+      for(int j = 0; j < cores; j++){
         threadWork[j][pos] = primes[i];
         //System.out.println("["+j+"]["+pos+"]: "+primes[i]);
         i ++;
@@ -360,13 +353,17 @@ public class SievePara{
       fWorkers[i].start();
     }
 
+    long currentNum;
+
     //Update monitor with each base.
-    for( i = nn-1; i >= nn-100; i--){
-      try{
-        System.out.println("master putting : "+ i);
-        monitor.putNum(i);
-      }catch (Exception e){return;}
-    }
+    try{
+      for(long l = nn-1; l >= nn-100; l--){
+        monitor.putNum(l);
+        //System.out.println("\nMASTER just put: "+ l );
+      }
+    barrier.await();
+    }catch (Exception e){return;}
+
   }//End factorizePara
 
 
@@ -378,26 +375,35 @@ public class SievePara{
     public FactoryWorker(int id, int[] primes){
         this.id = id;
         this.primesLocal = primes;
+        /*for(int i = 0; i < primes.length; i++){
+          if(primes[i] == 0) break;
+          System.out.println("id: " + id + " has primes: "  + primes[i]);
+        }*/
     }//end Constructor
 
       //This method factorizses a number given by a monitor.
       public void getLocalFactors() throws Exception{
-        int currNum = monitor.getNum();
-        int base = monitor.getBase(); // Already synchronized because of line above
-
-        while(currNum != -1){
-          for(int i = 0; i <primesLocal.length; i++){
-            if(primesLocal[i] == 0) break; // checked through all local primes.
-            if((currNum % primesLocal[i]) == 0){
-              //Found a factor.
-              System.out.println("id: " + id + "found factor: " + primesLocal[i] + " for currNum:" + currNum + " and base: " + base);
-              monitor.updateNum(currNum/primesLocal[i], primesLocal[i], currNum);
+        long currentBase;
+        long currentNum = 0;
+        int ctr = 0;
+        while(currentNum != -1){
+          ctr ++;
+          //System.out.println("ID: " + id + " IN BARRIER: " + ctr);
+          internBarrier.await();
+          currentBase = monitor.getBase();
+          currentNum = monitor.getNum(currentNum);
+          //System.out.println("ID: " + id + " OUT BARRIER: " + ctr);
+          if(currentNum == -1) break;
+          //System.out.println("ID: "+ id + " NOT BREAK: " + ctr);
+          for( int i = 0; i < primesLocal.length; i++){
+            if(primesLocal[i] == 0) break; //Seen through all local primes.
+            if(currentNum % primesLocal[i] == 0 ){
+              //Found a factor!
+              monitor.updateNum(currentNum/primesLocal[i], primesLocal[i], currentNum);
               break;
             }
+
           }//end for
-          currNum = monitor.getNum(); // Ask monitor for current number.
-          base = monitor.getBase(); // Don't need to syncrhonize this, as line above will sync for us
-          System.out.println("currnum: " + currNum + " currbase  " + base);
         }//end while
       }//end getLocalFactors
 
@@ -405,7 +411,9 @@ public class SievePara{
       public void run(){
         try{
           getLocalFactors();
+          barrier.await();
         }catch (Exception e){return;}
+        //System.out.println("Thread: "+ id + " FINISHED!");
       }//end run
     }//end FactoryWorker
 
