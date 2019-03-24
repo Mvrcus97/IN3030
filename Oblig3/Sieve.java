@@ -91,4 +91,8 @@ class Sieve {
             currentPrime = findNextPrime(currentPrime+2);
         }
     }
+
+    public void setPrimes(int[] primes){
+      this.primes = primes;
+    }
 }

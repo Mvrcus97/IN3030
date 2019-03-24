@@ -13,8 +13,6 @@ public class Monitor {
   final Condition notGiven = lock.newCondition();   // kø for Master
   final Condition notFactorized = lock.newCondition(); // kø for Workers
 
-  final Condition notCurrentDone = lock.newCondition(); //kø for Workers, rapportere om de fant faktor..
-  final Condition notAllReported = lock.newCondition(); //kø for master, vent til alle har fortalt om di fant en faktor.
   Oblig3Precode precode;
 
   public Monitor(long n, int precode, int threads ){
@@ -63,7 +61,7 @@ public class Monitor {
         n_done ++;
         if(n_done == n){
           precode.writeFactors();
-          System.out.println("----FINISHED.----");
+          //System.out.println("----FINISHED.----");
           notGiven.signalAll();
           notFactorized.signalAll();
           currentNum = 1;
@@ -104,7 +102,7 @@ public class Monitor {
         //System.out.println("---Done with base: " + currentBase + " -----");
         precode.addFactor(currentBase, factor);
         if(n_done == n){
-          System.out.println("ALL DONE");
+          //System.out.println("ALL DONE");
           currentNum = 1;
           notFactorized.signalAll();
 
@@ -134,8 +132,6 @@ public class Monitor {
       return 0;
     } finally{lock.unlock();}
   }//end getBase
-
-
 
 
 

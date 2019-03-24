@@ -31,7 +31,6 @@ public class SievePara{
     this.internBarrier = new CyclicBarrier(cores);
     this.lock = new ReentrantLock();
 
-    System.out.println("Threads available: " + this.cores);
     // 1 is defined as not being a prime.
     crossOut(1);
     //TODO too large
@@ -44,6 +43,7 @@ public class SievePara{
     //Hardcode 2 as prime, the only Even prime number.
     primes[currentPrimeIndex++] = 2;
   }//end Constructor
+
 
   /**
    * This method returns primes up to N
@@ -132,6 +132,7 @@ public class SievePara{
    try{barrier.await();
    }catch(Exception e){}
  }//End createThreads
+
 
   //Go through the sieve, save all leftover primes.
   private void collectPrimes(int searchFrom, int searchTo){
@@ -416,6 +417,36 @@ public class SievePara{
         //System.out.println("Thread: "+ id + " FINISHED!");
       }//end run
     }//end FactoryWorker
+
+
+
+    public void setPrimes(int[] primes){
+      this.primes = primes;
+    }
+
+    /*Cheeky function of getting median of UNSORTED* list
+    of ODD or EVEN* amount of elements. */
+    double median(Double[] a){
+      int length = a.length;
+      double temp;
+      boolean odd = false;
+      if (length%2 != 0){
+        odd = true;
+      }
+
+      //sort array
+      for( int i = 0; i < length; i++){
+        for (int j = i+1; j < length; j++){
+          if (a[j] < a[i]) {
+            temp = a[i];
+            a[i] = a[j];
+            a[j] = temp;
+          }
+        }
+      }
+      double median = odd? a[(length/2)] : (a[length/2] + a[(length/2)+1])/2;
+      return median;
+    }// end Median
 
 
 }// End SievePara
