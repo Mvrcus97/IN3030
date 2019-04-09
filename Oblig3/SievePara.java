@@ -22,7 +22,7 @@ public class SievePara{
 
   public SievePara(int n, int k){
     this.n = n;
-    this.nn = n*n;
+    this.nn = (long) n*n;
     this.sieve = new byte[n / 16 + 1];
     this.cores = ((k==0) ? Runtime.getRuntime().availableProcessors(): k);
     this.workers = new Thread[cores];
@@ -293,18 +293,10 @@ public class SievePara{
       }//End run
     }//End worker
 
-    //We need to expand these because we now need to find all primes up to N*N instead of just N.
-    public void expandPrimes(){
-      long size = nn/16 +1;
-      byte[] sieve2 = new byte[(int) size];
-      System.arraycopy( sieve, 0, sieve2, 0, sieve.length );
-      this.sieve = sieve2;
-    }
 
 
   public void factorizeSeq(){
     this.precode = new Oblig3Precode(n+1);
-
     for(long i = nn-1; i >= nn-100; i--){
       getFactors(i);
     }
@@ -330,7 +322,8 @@ public class SievePara{
     }//end for
   }// end getFactors
 
-  public void factorizePara(){
+
+  public void factorizePara() throws Exception{
     int amount_to_factorize = 100;
     monitor = new Monitor(amount_to_factorize, n, cores);
 
@@ -354,17 +347,13 @@ public class SievePara{
       fWorkers[i].start();
     }
 
-    long currentNum;
-
     //Update monitor with each base.
-    try{
-      for(long l = nn-1; l >= nn-100; l--){
-        monitor.putNum(l);
-        System.out.println("\nMASTER just put: "+ l );
-      }
-      monitor.putNum(-1);
-    }catch (Exception e){return;}
-
+    for(long l = nn-1; l >= nn-100; l--){
+      monitor.putNum(l);
+      //System.out.println("\nMASTER just put: "+ l );
+    }
+    //Finished! Let everyone know
+    monitor.putNum(-1);
   }//End factorizePara
 
 
@@ -376,19 +365,15 @@ public class SievePara{
     public FactoryWorker(int id, int[] primes){
         this.id = id;
         this.primesLocal = primes;
-        /*for(int i = 0; i < primes.length; i++){
-          if(primes[i] == 0) break;
-          //System.out.println("id: " + id + " has primes: "  + primes[i]);
-        }*/
     }//end Constructor
 
-      //This method factorizses a number given by a monitor.
-      public void getLocalFactors() throws Exception{
+      //This method factorizses all numbers given by a monitor.
+      public void factorize() throws Exception{
         long currentNum = 0;
-        int ctr = 0;
         while(currentNum != -1){
           currentNum = monitor.getNum(currentNum);
           //System.out.println("ID: " + id + " currentNum: " + currentNum);
+
           if(currentNum == -1) break;
           for( int i = 0; i < primesLocal.length; i++){
             if(primesLocal[i] == 0) break; //Seen through all local primes.
@@ -398,18 +383,14 @@ public class SievePara{
               currentNum = monitor.getNum(currentNum);
               i=-1;
             }
-
           }//end for
         }//end while
       }//end getLocalFactors
 
 
       public void run(){
-        try{getLocalFactors();}
+        try{factorize();}
         catch(Exception e){}
-        //System.out.println("Thread: " + id + " IS DONE");
-
-        ////System.out.println("Thread: "+ id + " FINISHED!");
       }//end run
     }//end FactoryWorker
 

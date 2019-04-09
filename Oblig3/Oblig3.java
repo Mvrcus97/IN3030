@@ -1,7 +1,7 @@
 
 public class Oblig3 {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		if(args.length != 2) {
 			System.out.printf("Need two arguments, [n] [k].\n");

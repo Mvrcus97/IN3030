@@ -43,7 +43,7 @@ public class Monitor {
         notFactorized.signalAll(); // Wake up all threads
         return true;
       }else if( n_given == n){
-        System.out.println("Given all numbers!");
+        //System.out.println("Given all numbers!");
         notFactorized.signalAll();
         notGiven.signalAll();
       }
@@ -57,20 +57,20 @@ public class Monitor {
     lock.lock();
     try{
       while( n_done < n && currentNum == 1 ) {
-        //System.out.println("sleeping... factor found:" + factor_found  + " misses: " + not_found_counter);
+        ////System.out.println("sleeping... factor found:" + factor_found  + " misses: " + not_found_counter);
         notFactorized.await(); // Wait for a new base.
       }
       while( current_thread_num == currentNum){
         miss_counter ++;
         if(miss_counter == threads){
           //FOUND NEW PRIME.
-          System.out.println("Adding new prime:" + currentNum);
+          //System.out.println("Adding new prime:" + currentNum);
           if(currentNum != 1) precode.addFactor(currentBase, currentNum);
           n_done ++;
           currentNum = 1;
           notGiven.signalAll();
           if(n_done == n){
-            System.out.println("ALL DONE");
+            //System.out.println("ALL DONE");
             currentNum = -1;
             notGiven.signalAll();
             notFactorized.signalAll();
@@ -99,10 +99,10 @@ public class Monitor {
       if(currentNum/factor == 1){
         //Done with this base.
         n_done ++;
-        System.out.println("---Done with base: " + currentBase + " , last factor: " + factor +", n_done: " + n_done + "-----");
+        //System.out.println("---Done with base: " + currentBase + " , last factor: " + factor +", n_done: " + n_done + "-----");
         precode.addFactor(currentBase, factor);
         if(n_done == n){
-          System.out.println("ALL DONE");
+          //System.out.println("ALL DONE");
           currentNum = -1;
           notGiven.signalAll();
           notFactorized.signalAll();
@@ -114,7 +114,7 @@ public class Monitor {
       }else{
         //Regular update num.
         miss_counter = 0;
-        System.out.println("Found factor for " + currentNum + " , factor: " + factor );
+        //System.out.println("Found factor for " + currentNum + " , factor: " + factor );
         precode.addFactor(currentBase, factor);
         currentNum = currentNum/factor;
         notFactorized.signalAll();
