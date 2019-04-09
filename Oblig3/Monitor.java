@@ -7,6 +7,7 @@ public class Monitor {
   int threads;
   int not_found_counter;
   boolean factor_found;
+  int miss_counter;
 
 
   final Lock lock = new ReentrantLock();
@@ -24,9 +25,10 @@ public class Monitor {
     this.currentBase = 1;
     this.precode = new Oblig3Precode(precode);
     this.not_found_counter = 0;
+    this.miss_counter = 0;
   }
 
-  public void putNum(long newNum) throws InterruptedException{
+  public boolean putNum(long newNum) throws InterruptedException{
     lock.lock();
     try{
       while( n_given < n && currentNum != 1){
@@ -36,13 +38,16 @@ public class Monitor {
         //Give a new number to factorize.
         currentBase = newNum;
         currentNum = newNum;
-        factor_found = true;
-        not_found_counter = 0;
         n_given ++;
-        notFactorized.signalAll();
+        miss_counter = 0;
+        notFactorized.signalAll(); // Wake up all threads
+        return true;
       }else if( n_given == n){
         System.out.println("Given all numbers!");
+        notFactorized.signalAll();
+        notGiven.signalAll();
       }
+      return false;
     }finally{lock.unlock();}
   }//end putNum
 
@@ -51,37 +56,36 @@ public class Monitor {
     long ret;
     lock.lock();
     try{
-      if(current_thread_num == currentNum) not_found_counter ++;
-      else factor_found = true;
-
-      if(not_found_counter == threads){
-        //none found a factor. we found a new prime!
-        //System.out.println("No threads found factor. MONITOR Found new prime: " +  currentNum);
-        precode.addFactor(currentBase, currentNum);
-        n_done ++;
-        if(n_done == n){
-          precode.writeFactors();
-          //System.out.println("----FINISHED.----");
-          notGiven.signalAll();
-          notFactorized.signalAll();
-          currentNum = 1;
-          return -1;
-
-        }
-        not_found_counter = 0;
-        currentNum = 1;
-        notGiven.signal();
-        factor_found = true;
-      }
-      while( (n_done < n && currentNum == 1) || !(factor_found) ) {
+      while( n_done < n && currentNum == 1 ) {
         //System.out.println("sleeping... factor found:" + factor_found  + " misses: " + not_found_counter);
         notFactorized.await(); // Wait for a new base.
       }
+      while( current_thread_num == currentNum){
+        miss_counter ++;
+        if(miss_counter == threads){
+          //FOUND NEW PRIME.
+          System.out.println("Adding new prime:" + currentNum);
+          if(currentNum != 1) precode.addFactor(currentBase, currentNum);
+          n_done ++;
+          currentNum = 1;
+          notGiven.signalAll();
+          if(n_done == n){
+            System.out.println("ALL DONE");
+            currentNum = -1;
+            notGiven.signalAll();
+            notFactorized.signalAll();
+            precode.writeFactors();
+          }
+        }
+        notFactorized.await();
+      }
+
 
       if(n_done < n){
         ret = currentNum;
       }else{
         notFactorized.signalAll();
+        notGiven.signalAll();
         ret = -1;
       }
       return ret;
@@ -89,36 +93,32 @@ public class Monitor {
   }//end getNum
 
 
-  public void updateNum(long new_num, long factor, long current_thread_num) throws InterruptedException{
+  public void updateNum(long factor, long current_thread_num) throws InterruptedException{
     lock.lock();
     try{
-      if(current_thread_num != currentNum){
-        //Someone else already found a factor for currentNum..
-        return;
-      }
-      if(new_num == 1){
+      if(currentNum/factor == 1){
         //Done with this base.
         n_done ++;
-        //System.out.println("---Done with base: " + currentBase + " -----");
+        System.out.println("---Done with base: " + currentBase + " , last factor: " + factor +", n_done: " + n_done + "-----");
         precode.addFactor(currentBase, factor);
         if(n_done == n){
-          //System.out.println("ALL DONE");
-          currentNum = 1;
+          System.out.println("ALL DONE");
+          currentNum = -1;
+          notGiven.signalAll();
           notFactorized.signalAll();
-
           precode.writeFactors();
         }
-        currentNum = new_num;
-        notGiven.signal(); // Signal we need a new base!
+        currentNum = 1;
+        notGiven.signalAll(); // Signal we need a new base!
+
       }else{
         //Regular update num.
+        miss_counter = 0;
+        System.out.println("Found factor for " + currentNum + " , factor: " + factor );
         precode.addFactor(currentBase, factor);
-        currentNum = new_num;
+        currentNum = currentNum/factor;
         notFactorized.signalAll();
       }
-
-
-
     }finally{lock.unlock();}
   }//end updateNum
 

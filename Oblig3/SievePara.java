@@ -63,9 +63,9 @@ public class SievePara{
     //We now need to find the first couple of primes.
     findFirstPrimes(sqrtN);
 
-    /*System.out.println("Primes after firstPrimes ");
+    /*//System.out.println("Primes after firstPrimes ");
     for(int i = 0; i < currentPrimeIndex; i++){
-    System.out.println(primes[i]);
+    //System.out.println(primes[i]);
   }*/
 
     //We have now found all primes up to sqrtN. Let's split the primes we found
@@ -76,9 +76,9 @@ public class SievePara{
     collectPrimes(primes[currentPrimeIndex-1]+2, n);
 
 
-    /*System.out.println("Primes after thread work: ");
+    /*//System.out.println("Primes after thread work: ");
     for(int i = 0; i < currentPrimeIndex; i++){
-      System.out.println(primes[i]);
+      //System.out.println(primes[i]);
     }*/
     return primes;
    }// end getPrimes
@@ -117,7 +117,7 @@ public class SievePara{
    while(i < to){
      for(int j = 0; j<workers.length; j++){
        threadWork[j][pos] = primes[i];
-       //System.out.println("["+j+"]["+pos+"]: "+primes[i]);
+       ////System.out.println("["+j+"]["+pos+"]: "+primes[i]);
        i ++;
      }
      pos ++;
@@ -137,13 +137,13 @@ public class SievePara{
   //Go through the sieve, save all leftover primes.
   private void collectPrimes(int searchFrom, int searchTo){
     if(searchFrom % 2 == 0){
-      System.out.println("Error. collecting from an even number");
+      //System.out.println("Error. collecting from an even number");
       searchFrom ++;
     }
     for( int i=searchFrom; i<searchTo; i+=2){
       if(isPrime(i)){
         primes[currentPrimeIndex++] = i;
-        //System.out.println("found prime: " + i);
+        ////System.out.println("found prime: " + i);
       }
     }
   }//end collectPrimes
@@ -225,7 +225,7 @@ public class SievePara{
 
         /*System.out.printf("id: %d, n: %d\n", id,n);
         for(int i = 0; i < primes.length; i++){
-        System.out.println("id: " + id + ", primes: " + primes[i]);
+        //System.out.println("id: " + id + ", primes: " + primes[i]);
       }*/
     }
 
@@ -237,7 +237,7 @@ public class SievePara{
         // Remember assumption 2 and 3
     		for(int i=currentPrime * currentPrime; i <this.n ; i += currentPrime * 2){
           crossOutLocal(i);
-          //System.out.println("Crossing out " + i);
+          ////System.out.println("Crossing out " + i);
         }
     }
 
@@ -265,7 +265,7 @@ public class SievePara{
         lock.lock();
         try{
           int a, b, c;
-          //System.out.println("Thread: " + id + " merging..");
+          ////System.out.println("Thread: " + id + " merging..");
           for(int i = 0; i<primesByteLocal.length; i++){
             a = sieve[i];
             b = primesByteLocal[i];
@@ -287,7 +287,7 @@ public class SievePara{
 
         mergeSieves();
         //Finally, let everyone know this thread is done.
-        //System.out.println("Thread: " + id + " is done. ");
+        ////System.out.println("Thread: " + id + " is done. ");
         try{barrier.await();
         }catch(Exception e){return;}
       }//End run
@@ -303,7 +303,7 @@ public class SievePara{
 
 
   public void factorizeSeq(){
-    this.precode = new Oblig3Precode(n);
+    this.precode = new Oblig3Precode(n+1);
 
     for(long i = nn-1; i >= nn-100; i--){
       getFactors(i);
@@ -315,7 +315,7 @@ public class SievePara{
     long currNum = num;
 
     for(int i = 0; i <currentPrimeIndex; i++){
-      //System.out.println("i: " + i + ", currPrime: " + currPrime + "currNum: " + currNum);
+      ////System.out.println("i: " + i + ", currPrime: " + currPrime + "currNum: " + currNum);
       if( currNum % primes[i] == 0){
         precode.addFactor(num, primes[i]);
         currNum = currNum/primes[i];
@@ -324,7 +324,7 @@ public class SievePara{
 
       if( (i == currentPrimeIndex-1) && (currNum != 1) ){
         //No factor found. That means we must have encountered a prime.
-        //System.out.println("Found a new prime: " + currNum);
+        ////System.out.println("Found a new prime: " + currNum);
         precode.addFactor(num, currNum);
       }
     }//end for
@@ -342,7 +342,7 @@ public class SievePara{
     while(i < currentPrimeIndex){
       for(int j = 0; j < cores; j++){
         threadWork[j][pos] = primes[i];
-        //System.out.println("["+j+"]["+pos+"]: "+primes[i]);
+        ////System.out.println("["+j+"]["+pos+"]: "+primes[i]);
         i ++;
       }
       pos ++;
@@ -360,9 +360,9 @@ public class SievePara{
     try{
       for(long l = nn-1; l >= nn-100; l--){
         monitor.putNum(l);
-        //System.out.println("\nMASTER just put: "+ l );
+        System.out.println("\nMASTER just put: "+ l );
       }
-    barrier.await();
+      monitor.putNum(-1);
     }catch (Exception e){return;}
 
   }//End factorizePara
@@ -378,30 +378,25 @@ public class SievePara{
         this.primesLocal = primes;
         /*for(int i = 0; i < primes.length; i++){
           if(primes[i] == 0) break;
-          System.out.println("id: " + id + " has primes: "  + primes[i]);
+          //System.out.println("id: " + id + " has primes: "  + primes[i]);
         }*/
     }//end Constructor
 
       //This method factorizses a number given by a monitor.
       public void getLocalFactors() throws Exception{
-        long currentBase;
         long currentNum = 0;
         int ctr = 0;
         while(currentNum != -1){
-          ctr ++;
-          //System.out.println("ID: " + id + " IN BARRIER: " + ctr);
-          internBarrier.await();
-          currentBase = monitor.getBase();
           currentNum = monitor.getNum(currentNum);
-          //System.out.println("ID: " + id + " OUT BARRIER: " + ctr);
+          //System.out.println("ID: " + id + " currentNum: " + currentNum);
           if(currentNum == -1) break;
-          //System.out.println("ID: "+ id + " NOT BREAK: " + ctr);
           for( int i = 0; i < primesLocal.length; i++){
             if(primesLocal[i] == 0) break; //Seen through all local primes.
             if(currentNum % primesLocal[i] == 0 ){
               //Found a factor!
-              monitor.updateNum(currentNum/primesLocal[i], primesLocal[i], currentNum);
-              break;
+              monitor.updateNum(primesLocal[i], currentNum);
+              currentNum = monitor.getNum(currentNum);
+              i=-1;
             }
 
           }//end for
@@ -410,11 +405,11 @@ public class SievePara{
 
 
       public void run(){
-        try{
-          getLocalFactors();
-          barrier.await();
-        }catch (Exception e){return;}
-        //System.out.println("Thread: "+ id + " FINISHED!");
+        try{getLocalFactors();}
+        catch(Exception e){}
+        //System.out.println("Thread: " + id + " IS DONE");
+
+        ////System.out.println("Thread: "+ id + " FINISHED!");
       }//end run
     }//end FactoryWorker
 
@@ -422,6 +417,12 @@ public class SievePara{
 
     public void setPrimes(int[] primes){
       this.primes = primes;
+      for(int i = 0; i <primes.length; i++){
+        if(primes[i] == 0) {
+          currentPrimeIndex = i;
+          break;
+        }
+      }
     }
 
     /*Cheeky function of getting median of UNSORTED* list

@@ -53,6 +53,7 @@ public class Oblig3 {
 			paraTimes[i] = stop;
 			para = new SievePara(n, k);
 		}
+
 		double medianPara = para.median(paraTimes);
 		System.out.println("--------------------------------------");
 		System.out.println("      Median Time Parallel          \n           "+ medianPara + "ms      ");
