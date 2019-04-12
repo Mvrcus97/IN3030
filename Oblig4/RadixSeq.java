@@ -6,14 +6,8 @@ import java.util.Arrays;
 */
 
 class RadixSeq {
-    final static int DIGIT_BITS = 4; // Used for calculating number of digits later
+    public static int DIGIT_BITS = 4; // Used for calculating number of digits later
 
-    public static void main(String[] args) {
-        //Example
-        int[] a = Oblig4Precode.generateArray(40, 1337);
-        radix(a);
-        //System.out.println(Arrays.toString(a));
-    }
 
     public static void radix (int[] a) {
         int max = a[0]; //Varaible for max value
@@ -33,20 +27,13 @@ class RadixSeq {
 
         //How many digits we work on
         numDigits = Math.max(1, maxNumberBits / DIGIT_BITS);
-        System.out.println("numDigits:" + numDigits);
         bit = new int[numDigits];
         int rest = maxNumberBits % DIGIT_BITS;
-        System.out.println("Rest:"  + rest);
 
         //Divide the parts that we sort on equally.
         for (int i = 0; i < bit.length; i++ ) {
             bit[i] = maxNumberBits / numDigits;
             if (rest-- > 0) bit[i]++;
-        }
-
-        System.out.println("BIT IS: ");
-        for(int i = 0; i < bit.length; i++){
-          System.out.println(bit[i]);
         }
 
 
@@ -62,10 +49,6 @@ class RadixSeq {
             temp = a;
             a = b;
             b = temp;
-            System.out.println("After swap:");
-            for(int j = 30; j < 40; j++){
-              System.out.println("a["+j+"]: "+  a[j]);
-            }
         }
 
         //If the end result ends up in the b array, copy it to the a array
@@ -80,18 +63,11 @@ class RadixSeq {
         int n = a.length;
         int mask = (1 << maskLen) -1; //a bitstring of 1's with the length we need.
         int[] count = new int[mask + 1]; //For counting occurences.
-        System.out.println("Shift: " + shift);
-        System.out.println("Masklen:" + maskLen);
-        System.out.println("Mask:" + mask);
 
         //Part B: Counting occurences of digits
         for (int i = 0; i < n; i++) {
             count[a[i] >>> shift & mask]++;
         }
-        System.out.println("After B:");
-         for (int i = 0; i < count.length; i++) {
-             System.out.println(count[i]);
-         }
 
 
         //Part C: Making "pointers" so we know where to put the numbers from a to b
@@ -101,36 +77,11 @@ class RadixSeq {
             acumVal += temp;
         }
 
-        System.out.println("After C: ");
-
-         for (int i = 0; i < count.length; i++) {
-             System.out.println(count[i]);
-         }
-
-         System.out.println("PRE D:");
-         for(int i = 30; i < 40; i++){
-           System.out.println("a["+i+"]: "+ a[i]);
-         }
-
         //Part D: Move numbers from a to b.
-        System.out.println("PART D: . Shift: " + shift + ", mask: " + mask + " maskLen:" + maskLen + " ----------------");
         for (int i = 0; i < n; i++) {
-            if(i>1535) {
-              // System.out.println("i: " + i + ", : " + count[(a[i] >>> shift) & mask]);
-              //   System.out.println("a[..] " + ((a[i] >>> shift) & mask));
-            }
             b[count[(a[i] >>> shift) & mask]++] = a[i];
         }
 
-        // for(int i = 1535; i < n; i++){
-        //   System.out.println("b["+i+"]: "+ b[i]);
-        // }
-
-
-        System.out.println("After D: (Array b)");
-        // for (int i = 0; i < b.length; i++) {
-        //   System.out.println(b[i]);
-        // }
 
     }
 

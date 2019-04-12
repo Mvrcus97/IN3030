@@ -189,6 +189,31 @@ public class Radix{
   }
 
 
+  /*Cheeky function of getting median of UNSORTED* list
+  of ODD or EVEN* amount of elements. */
+  double median(Double[] a){
+    int length = a.length;
+    double temp;
+    boolean odd = false;
+    if (length%2 != 0){
+      odd = true;
+    }
+
+    //sort array
+    for( int i = 0; i < length; i++){
+      for (int j = i+1; j < length; j++){
+        if (a[j] < a[i]) {
+          temp = a[i];
+          a[i] = a[j];
+          a[j] = temp;
+        }
+      }
+    }
+    double median = odd? a[(length/2)] : (a[length/2] + a[(length/2)+1])/2;
+    return median;
+  }// end Median
+
+
 
 
 
