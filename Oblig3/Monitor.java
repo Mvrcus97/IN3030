@@ -5,8 +5,6 @@ public class Monitor {
   long currentBase;
   long currentNum;
   int threads;
-  int not_found_counter;
-  boolean factor_found;
   int miss_counter;
 
 
@@ -24,7 +22,6 @@ public class Monitor {
     this.currentNum = 1;
     this.currentBase = 1;
     this.precode = new Oblig3Precode(precode);
-    this.not_found_counter = 0;
     this.miss_counter = 0;
   }
 
