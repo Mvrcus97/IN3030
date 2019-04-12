@@ -1,2 +1,0 @@
-Results for n=1 with seed=1337
-0 : 2

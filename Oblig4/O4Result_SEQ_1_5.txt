@@ -1,6 +1,0 @@
-Results for n=5 with seed=1
-0 : 5
-1 : 8
-2 : 7
-3 : 13
-4 : 14
