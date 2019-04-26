@@ -41,8 +41,6 @@ public class Radix{
 
     //Count how many bits needed for the largest number
     this.maxNumberBits = findBits(globalMax);
-    this.allCount = new int[cores][(1 << (maxNumberBits+1))];
-    this.sumCount = new int[(1 << (maxNumberBits+1))];
 
     //How many digits we work on
     int numDigits = Math.max(1, maxNumberBits / DIGIT_BITS);
@@ -90,7 +88,6 @@ public class Radix{
     this.maskLen = maskLen;
     this.shift = shift;
     this.mask = (1 << maskLen) -1; //a bitstring of 1's with the length we need.
-
     this.allCount = new int[cores][mask+1];
     this.sumCount = new int[mask+1];
     this.pointers = new int[cores][mask+1];
@@ -144,8 +141,6 @@ public class Radix{
     for(int i = 0; i < cores; i++){
       if(thread_max[i] > globalMax) globalMax = thread_max[i];
     }
-
-    //System.out.println("Found biggest value: " + globalMax);
   }//end stegA()
 
 
@@ -272,7 +267,6 @@ public class Radix{
         this.start *= this.id;
         this.stop = ((n/cores) * (this.id+1));
         if(id == cores-1) this.stop = n;
-
         this.local_count = new int[mask+1];
         for(int i = start; i < stop; i++){
           local_count[a[i] >> shift & mask] ++;

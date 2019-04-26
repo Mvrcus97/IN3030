@@ -12,8 +12,8 @@ public class Main {
 		int n = Integer.parseInt(args[0]);
 		int k = Integer.parseInt(args[1]);
 		k = (k==0) ? Runtime.getRuntime().availableProcessors(): k;
-		int seed = Integer.parseInt(args[2]);
-		int DIGIT_BITS = Integer.parseInt(args[3]);
+		int DIGIT_BITS = Integer.parseInt(args[2]);
+		int seed = Integer.parseInt(args[3]);
 		double start = 0;
 		double stop = 0;
 		start = System.nanoTime();
@@ -48,6 +48,7 @@ public class Main {
 			}
 			if(i<6) System.arraycopy(arr, 0, fasit, 0, arr.length); //reset fasit
 		}
+		Oblig4Precode.saveResults(Oblig4Precode.Algorithm.SEQ, seed, fasit);
 
 		double medianSeq = radix.median(seqTimes);
 		System.out.println("--------------------------------------");
