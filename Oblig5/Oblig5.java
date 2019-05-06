@@ -83,7 +83,7 @@ public class Oblig5{
     IntList outerList = getOuterList(p1, p3, m);
     int point = getLargestDistance(p1, p3, outerList);
 
-    if( point != -1){
+    if(point != -1){
       //Recursion keep going
       seqRec(p1, p3, point, outerList, hull);
     }
@@ -93,7 +93,7 @@ public class Oblig5{
     outerList = getOuterList(p3, p2, m);
     point = getLargestDistance(p3, p2 , outerList);
 
-    if( point != -1 ){
+    if(point != -1){
       //Recursion keep going
       seqRec(p3, p2, point, outerList, hull);
     }
