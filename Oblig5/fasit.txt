@@ -1,0 +1,231 @@
+public class Oblig5{
+  int[] x, y;
+  int n, MAX_X, MAX_Y;
+  NPunkter p;
+  IntList omkrets = new IntList();
+
+  public Oblig5(int n){
+    this.n = n;
+    this.x = new int[n];
+    this.y = new int[n];
+    this.p = new NPunkter(n);
+    p.fyllArrayer(x,y);
+
+    int tmpx = 0;
+    int tmpy = 0;
+    for(int i = 0; i < n; i++){
+      if(x[i] > tmpx) tmpx = x[i];
+      if(y[i] > tmpy) tmpy = y[i];
+
+    }
+    this.MAX_X = tmpx;
+    this.MAX_Y = tmpy;
+  }
+
+
+  public void printPairs(){
+    for(int i = 0; i < n; i++){
+      System.out.println("["+i+"]: ("+x[i]+", " +y[i]+")");
+    }
+  }
+
+  public void TegnUt(){
+    TegnUt tu = new TegnUt (this, omkrets);
+  }
+
+
+
+
+
+
+
+  public void seqRun(){
+    int minIdx = 0; int maxIdx = 0;
+    for(int i = 0; i < n; i++){
+      if(x[i] > x[maxIdx]) maxIdx = i;
+      if(x[i] < x[minIdx]) minIdx = i;
+    }
+
+    //Begin with Top-Half.
+    omkrets.add(maxIdx);
+    int a = y[maxIdx] - y[minIdx];
+    int b = x[minIdx] - x[maxIdx];
+    int c = y[minIdx] * x[maxIdx] - y[maxIdx] * x[minIdx];
+
+    int d = -1;
+    int tmp = 1;
+    IntList m = new IntList();
+    int val;
+    //Begin with only points above base line.(Top Half Circle)
+    for(int i = 0 ; i < n; i ++){
+      val = a*x[i] + b*y[i] + c;
+      if(val < tmp){
+        d = i;
+        tmp = val;
+      }
+    }
+    int min = Math.min(y[minIdx], y[maxIdx]);
+    for(int i = 0; i < n; i ++){
+      if(y[i] >= min){
+        if( i != minIdx && i != maxIdx && i != d) {
+          m.add(i);
+        }
+      }
+    }
+    System.out.println("\n\nSize top:" + m.size());
+    seqRec(minIdx, maxIdx, d, m);
+
+    //Top Circumference found. Now we can add the left-most-point and begin from bottom half.
+    omkrets.add(minIdx);
+    a = y[minIdx] - y[maxIdx];
+    b = x[maxIdx] - x[minIdx];
+    c = y[maxIdx] * x[minIdx] - y[minIdx] * x[maxIdx];
+
+    m = new IntList();
+    d = -1;
+    tmp = 1;
+    //Only add ponts which are on the bottom half-circle.
+    for(int i = 0 ; i < n; i ++){
+      val = a*x[i] + b*y[i] + c;
+      if( val < tmp){
+        d = i;
+        tmp = a*x[i] + b*y[i] + c;
+      }
+    }
+
+    int max = Math.max(y[minIdx], y[maxIdx]);
+    for(int i = 0; i < n; i++){
+      if( y[i] <= max ){
+        if( i != minIdx && i != maxIdx && i != d) {
+          m.add(i);
+        }
+      }
+    }
+
+
+    System.out.println("\n\nSize bottom: " + m.size());
+    seqRec(maxIdx, minIdx, d, m);
+  }//end seqRun
+
+
+
+
+
+  public void seqRec( int p1, int p2, int p3, IntList m){
+    //System.out.println("P1:" + p1 + " P2: " + p2 + " P3: " + p3);
+    for(int i = 0; i < m.size(); i++){
+      //System.out.println("m["+i+"]: " + m.get(i));
+    }
+    boolean doneRight = false; boolean doneLeft = false;
+    int stop, tmp, ctr;  IntList m_new = new IntList();
+
+    int p_new = search(p2, p3, m);
+
+    if(p_new != -1){ // If there are any points between p2 and p3:
+
+      stop = m.size();
+      m_new = new IntList();
+
+
+      ctr = 0;
+      //Check which points are candidates on the new right-side.
+      for(int i = 0; i < stop; i++){
+        tmp = m.get(i);
+        if( (x[tmp] >= x[p3] && x[tmp] <= x[p2]) || (x[tmp] <= x[p3] && x[tmp] >= x[p2])){ // if(TOP_CRITERIA OR BOTTOM_CRITERIA)
+          if(tmp != p2 && tmp != p_new && tmp != p3){ // dont want duplicates.
+            m_new.add(tmp);
+            ctr ++;
+          }
+        }
+      }
+      if(ctr > 0){
+        System.out.println("m_new size RIGHT: " + m_new.size());
+        seqRec(p3, p2, p_new, m_new); //Search between found point.
+      }
+    }
+    //System.out.println("Adding:" + p3);
+    omkrets.add(p3);
+
+    //Right side done. Go Left side
+    p_new = search(p3,p1, m);
+
+    if(p_new != -1){
+      m_new = new IntList();
+      stop = m.size();
+      ctr = 0;
+      for(int i = 0; i < stop; i++){
+        tmp = m.get(i);
+        if( (x[tmp] >= x[p1] && x[tmp] <= x[p3]) || (x[tmp] <= x[p1] && x[tmp] >= x[p3])){ // if(TOP_CRITERIA OR BOTTOM_CRITERIA)
+          if(tmp != p3 && tmp != p_new && tmp != p1){ //Don't want duplicates.
+            m_new.add(tmp);
+            ctr ++;
+          }
+        }
+      }
+      if(ctr > 0){
+        System.out.println("m_new size LETF: " + m_new.size());
+        seqRec(p1,p3, p_new, m_new ); // search between found point.
+      }
+    }
+    //Left done
+  }//end seqRec()
+
+
+  //Search from p1 to p2.
+  public int search(int p1, int p2, IntList m){
+    int a = y[p1] - y[p2];
+    int b = x[p2] - x[p1];
+    int c = y[p2] * x[p1] - y[p1] * x[p2];
+
+    int p = -1; int tmp = 1; int stop = m.size();
+    int val, curr;
+
+    for(int i = 0 ; i < stop; i ++){
+      curr = m.get(i);
+      val = a*x[curr] + b*y[curr] + c;
+
+      if(val < tmp && val <= 0){
+        //Found a candidate.
+
+        //Top search
+        if(y[curr] >= y[p1] || y[curr] >= y[p2]){
+          if(x[curr] <= x[p1] && x[curr] >= x[p2]){
+            p = curr;
+            tmp = val;
+          }
+        }//end Top
+
+        //Bottom search
+        if(y[curr] <= y[p1] || y[curr] <= y[p2]){
+          if(x[curr] >= x[p1] && x[curr] <= x[p2]){
+            p = curr;
+            tmp = val;
+          }
+        }//end Bottom
+      }//end found candidate
+    }//end for
+    System.out.println("Between " + p1 +"  and " + p2 + " I found: "+ p);
+    return p;
+  }//end search()
+
+
+  public void printOmkrets(){
+    System.out.println("Omkrets:\n");
+    for(int i = 0; i < omkrets.size(); i++){
+      System.out.print(omkrets.get(i)+", ");
+    }
+    System.out.println();
+  }
+}//end Oblig5
+
+
+
+
+
+
+
+
+
+
+
+//
