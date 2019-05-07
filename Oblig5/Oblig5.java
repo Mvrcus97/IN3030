@@ -3,7 +3,6 @@ import java.util.concurrent.CyclicBarrier;
   /* Oblig 5 - Marcusti */
 
 
-
 public class Oblig5{
   int[] x, y;
   int n, MAX_X, MAX_Y, cores;
@@ -113,6 +112,7 @@ public class Oblig5{
     return newList;
   }//end getOuterList
 
+
   //Get distance from p_new to line p1 -> p2.
   public int getDistance(int p_new, int p1, int p2) {
     int a = y[p1] - y[p2];
@@ -133,7 +133,7 @@ public class Oblig5{
 
 
 
-  //Check distance to all outer points, return the one point which is furthest away.
+  //Check distance to all points in list, return the one point which is furthest away.
   public int getLargestDistance(int p1, int p2, IntList list) {
     int p_tmp, d_tmp;
     int p_new = -1; int d_new = 1;
